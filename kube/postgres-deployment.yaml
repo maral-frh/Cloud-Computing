@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+spec:
+replicas: 1
+strategy:
+  type: Recreate
+template:
+  spec:
+    containers:
+      - env:
+          - name: POSTGRES_DB
+            valueFrom:
+              name: POSTGRES_DB
+              key: cc
+        envFrom:
+          - secretRef:
+              name: DB_detail
+        
+        image: postgres
+        name: postgres
+        ports:
+          - containerPort: 5432
+        resources:
+          limits:
+            cpu: 50m
+            memory: "536870912"
+        volumeMounts:
+          - mountPath: /var/lib/postgresql/data
+            name: postgres
+    restartPolicy: Always
+    volumes:
+      - name: postgres
+        persistentVolumeClaim:
+          claimName: postgres
